@@ -1,0 +1,15 @@
+<%@ index(Data) %>
+<html>
+<head>
+  <title>twoorl</title>
+  <link rel="stylesheet" href="/static/style.css" type="text/css">
+  <script src="/static/jquery-latest.js"/>
+  <script src="/static/twoorl.js"/>
+</head>
+
+<body>
+<div id="content">
+<% Data %>
+</div>
+</body>
+</html>
