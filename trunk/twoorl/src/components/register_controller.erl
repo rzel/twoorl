@@ -26,9 +26,9 @@ index(A) ->
     case yaws_arg:method(A) of
 	'POST' ->
 	    Params = yaws_api:parse_post(A),
-	    {[Username, Password, Password2], Errs} =
+	    {[Username, Email, Password, Password2], Errs} =
 		erlyweb_forms:validate(
-		  A, ["username", "password", "password2"],
+		  A, ["username", "email", "password", "password2"],
 		  fun validate/2),
 	    Errs1 = 
 		if Password == Password2 ->
@@ -40,7 +40,7 @@ index(A) ->
 		    {data, Errs1};
 	       true ->
 		    %% todo set cookie
-		    Usr = register_usr(Username, Password),
+		    Usr = register_usr(Username, Email, Password),
 		    login_controller:do_login(Usr)
 	    end;
 	_ ->
@@ -67,12 +67,19 @@ validate(Name, Val) ->
 		_ ->
 		    {error, password_too_short}
 	    end;
+	"email" ->
+	    if Val == [] ->
+		    {error, {missing_field, "email"}};
+	       true ->
+		    ok
+	    end;
 	_ ->
 	    ok
     end.
 				      
-register_usr(Username, Password) ->
+register_usr(Username, Email, Password) ->
     Usr = usr:new_with([{username, list_to_binary(Username)},
+			{email, Email},
 			%% not the most secure password storage method,
 			%% but good enough for now
 			{password, crypto:sha(Username ++ Password)}]),

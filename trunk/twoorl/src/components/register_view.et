@@ -4,6 +4,8 @@
 <form action="/register" method="post">
   <div>username</div>
   <div><input name="username" id="input1"/></div>
+  <div>email</div>
+  <div><input name="email"/></div>
   <div>password</div>
   <div><input name="password" type="password"/></div>
   <div>re-enter password</div>
