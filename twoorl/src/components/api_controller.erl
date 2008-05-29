@@ -46,6 +46,7 @@ send(A) ->
 					  {usr_id, Usr:id()},
 					  {body, Body2},
 					  {body_raw, Body}]),
+		      error_logger:info_msg("msg: ~b~n", [Msg]),
 		      Msg1 = Msg:save(),
 
 		      Recipients = 
@@ -149,7 +150,7 @@ add_links(Body) ->
 		  Acc1 = [[Prefix, Anchor] | Acc],
 		  {CurIdx + PrefixLen +  Length, Acc1, Rem2, [Name | NamesAcc]}
 	  end, {1, [], Body, []}, Matches),
-    {[lists:reverse(Acc), Rem3], Names}.
+    {lists:reverse(Acc) ++ Rem3, Names}.
 	      
 	      
 	      

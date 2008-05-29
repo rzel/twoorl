@@ -7,6 +7,7 @@
 </table>
 <% Navbar %>
 <% Ewc %>
+<div id="footer">Get the source code at <a href="http://code.google.com/p/twoorl">http://code.google.com/p/twoorl</a></div>
 
 <%@ header(undefined) %><a href="/login">login</a> | <a href="/register">register</a>
 <%@ header(Username) %>logged in as <% Username %> | <a href="/logout">logout</a>
