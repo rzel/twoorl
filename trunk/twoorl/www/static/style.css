@@ -127,3 +127,9 @@ a:visited {
   padding: 1px 3px;
   border: #aaa solid 1px;
 }
+
+#footer {
+  margin: 20px auto 0px auto;
+  font-size: 0.7em;
+  
+}
