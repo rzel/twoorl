@@ -89,8 +89,9 @@ show_msg(_A, Msg, Opts) ->
 		      undefined;
 		  _ -> twoorl_util:user_link(Username)
 	      end,
-    CreatedOn = msg:created_on(Msg),
-    CreatedOn1 = twoorl_util:get_time_since(CreatedOn),
+    CreatedOn = msg:get_time_since(Msg),
     IsBig = proplists:get_value(is_big, Opts) == true,
     
-    {data, {UsrLink, msg:body(Msg), CreatedOn1, IsBig}}.
+    {data, {integer_to_list(Msg:id()),
+	    Username,
+	    UsrLink, msg:body(Msg), CreatedOn, IsBig}}.

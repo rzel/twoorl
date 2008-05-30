@@ -20,3 +20,6 @@
 
 -module(msg).
 -compile(export_all).
+
+get_time_since(Msg) ->
+    twoorl_util:get_time_since(Msg:created_on()).
