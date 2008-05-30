@@ -26,6 +26,11 @@ index(A) ->
 	undefined ->
 	    ok;
 	Key ->
+	    twoorl_util:auth(
+	      A, fun(Usr) ->
+			 usr:update([{session_key,undefined}],
+				    {id,'=',Usr:id()})
+		 end),
 	    mnesia:dirty_delete(session, Key)
     end,
     {response, [yaws_api:setcookie("key", ""),

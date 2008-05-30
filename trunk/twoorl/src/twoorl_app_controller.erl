@@ -79,8 +79,7 @@ lookup(Key) ->
 		undefined ->
 		    undefined;
 		Usr ->
-		    #session{key=Key,
-			     value=Usr}
+		    #session{key=Key, value=Usr}
 	    end;
 	[Session] ->
 	    Session;
