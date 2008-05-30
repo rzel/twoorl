@@ -53,10 +53,10 @@ index(A) ->
 		   true ->
 			Errs
 		end,
-	    if Errs == [] ->
+	    if Errs1 == [] ->
 		    do_login(Usr);
 	       true ->
-		    {data, Errs}
+		    {data, Errs1}
 	    end;
 	_ ->
 	    {data, []}
@@ -72,5 +72,6 @@ get_usr(Username) ->
 
 do_login(Usr) ->
     Key = twoorl_util:gen_key(),
-    mnesia:dirty_write(#session{key=Key, value=Usr}),
+    mnesia:dirty_write(#session{key=Key,
+				value=Usr}),
     {response, [yaws_api:setcookie("key", Key), ewr]}.
