@@ -64,7 +64,7 @@ auth(A) ->
 	    Key = list_to_binary(Val),
 	    case lookup(Key) of
 		undefined ->
-		    {A, false};
+			    {A, false};
 		Session ->
 		    {yaws_arg:add_all_to_opaque(
 		       A,
@@ -75,7 +75,13 @@ auth(A) ->
 lookup(Key) ->
     case mnesia:dirty_read(session, Key) of
 	[] ->
-	    undefined;
+	    case usr:find_first({session_key,'=',Key}) of
+		undefined ->
+		    undefined;
+		Usr ->
+		    #session{key=Key,
+			     value=Usr}
+	    end;
 	[Session] ->
 	    Session;
 	Other ->

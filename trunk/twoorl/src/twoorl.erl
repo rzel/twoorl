@@ -19,7 +19,7 @@
 %% @copyright Yariv Sadan, 2008
 
 -module(twoorl).
--export([start/0]).
+-compile(export_all).
 -include("twoorl.hrl").
 -include("twoorl_app.hrl").
 
