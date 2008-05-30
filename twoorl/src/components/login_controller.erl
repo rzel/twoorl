@@ -74,4 +74,5 @@ do_login(Usr) ->
     Key = twoorl_util:gen_key(),
     mnesia:dirty_write(#session{key=Key,
 				value=Usr}),
+    usr:update([{session_key, Key}], {id,'=',usr:id(Usr)}),
     {response, [yaws_api:setcookie("key", Key), ewr]}.
