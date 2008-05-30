@@ -64,7 +64,7 @@ auth(A) ->
 	    Key = list_to_binary(Val),
 	    case lookup(Key) of
 		undefined ->
-			    {A, false};
+		    {A, false};
 		Session ->
 		    {yaws_arg:add_all_to_opaque(
 		       A,
