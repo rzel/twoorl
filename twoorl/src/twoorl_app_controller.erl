@@ -79,7 +79,9 @@ lookup(Key) ->
 		undefined ->
 		    undefined;
 		Usr ->
-		    #session{key=Key, value=Usr}
+		    Session = #session{key=Key, value=Usr},
+		    mnesia:dirty_write(Session),
+		    Session
 	    end;
 	[Session] ->
 	    Session;
