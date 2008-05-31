@@ -1,0 +1,1 @@
+update table msg modify column body text;
