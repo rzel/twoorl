@@ -46,7 +46,6 @@ send(A) ->
 					  {usr_id, Usr:id()},
 					  {body, Body2},
 					  {body_raw, Body}]),
-		      error_logger:info_msg("msg: ~b~n", [Msg]),
 		      Msg1 = Msg:save(),
 
 		      Recipients = 
