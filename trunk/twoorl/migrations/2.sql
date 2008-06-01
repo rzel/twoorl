@@ -1,1 +1,1 @@
-update table msg modify column body text;
+alter table msg modify column body text;
