@@ -35,15 +35,18 @@ send(A) ->
 				[] ->
 				    {error, empty_msg};
 				_ ->
-				    ok
+				    %% helps avoid DOS
+				    {ok, lists:sublist(Val, ?MAX_MSG_SIZE)}
 			    end
 		    end),
 	      case Errs of
 		  [] ->
-		      {Body1, Names} = process_body(Body),
+		      Body1 = twoorl_util:htmlize(Body),
+		      Body2 = add_tinyurl_links(Body1),
+		      {Body3, Names} = add_reply_links(Body2),
 		      Msg = msg:new_with([{usr_username, Usr:username()},
 					  {usr_id, Usr:id()},
-					  {body, Body1},
+					  {body, lists:flatten(Body3)},
 					  {body_raw, Body}]),
 		      Msg1 = Msg:save(),
 
@@ -136,11 +139,6 @@ follow(A) ->
       end).
 
 	      
-process_body(Body) ->
-    Body1 = twoorl_util:htmlize(Body),
-    Body2 = add_tinyurl_links(Body1),
-    add_reply_links(Body2).
-
 add_reply_links(Body) ->
     %% regexp:parse("@[A-Za-z0-9_]+")
     Re = {concat,64,
@@ -148,7 +146,7 @@ add_reply_links(Body) ->
     {Body1, Names, _LenDiff} = 
 	twoorl_util:replace_matches(
 	  Body, Re, fun([_ | Name] = Val) ->
-			    twoorl_util:user_link(Name, Val)
+			    twoorl_util:user_link(Name, Val, list)
 		    end, ?MAX_TWOORL_LEN),
     {Body1, Names}.
 	      
