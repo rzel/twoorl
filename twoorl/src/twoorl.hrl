@@ -7,15 +7,16 @@
 -define(MAX_PAGE_SIZE, 20).
 -define(MAX_FOLLOWING_BOX_SIZE, 20).
 -define(PAGING_WINDOW, 3).
+-define(MAX_TWOORL_LEN, 140).
 
 
-%% -import(vimagi, [log/5]).
-%% -define(Debug(Msg, Params),
-%% 	vimagi:log(?MODULE, ?LINE, debug, fun() -> {Msg, Params} end)).
-%% -define(Info(Msg, Params),
-%% 	vimagi:log(?MODULE, ?LINE, info, fun() -> {Msg, Params} end)).
-%% -define(Warn(Msg, Params),
-%% 	vimagi:log(?MODULE, ?LINE, warn, fun() -> {Msg, Params} end)).
-%% -define(Error(Msg, Params),
-%% 	vimagi:log(?MODULE, ?LINE, error, fun() -> {Msg, Params} end)).
+-import(twoorl_util, [log/5]).
+-define(Debug(Msg, Params),
+	twoorl_util:log(?MODULE, ?LINE, debug, fun() -> {Msg, Params} end)).
+-define(Info(Msg, Params),
+ 	twoorl_util:log(?MODULE, ?LINE, info, fun() -> {Msg, Params} end)).
+-define(Warn(Msg, Params),
+ 	twoorl_util:log(?MODULE, ?LINE, warn, fun() -> {Msg, Params} end)).
+-define(Error(Msg, Params),
+ 	twoorl_util:log(?MODULE, ?LINE, error, fun() -> {Msg, Params} end)).
 

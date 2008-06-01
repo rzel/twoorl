@@ -3,3 +3,4 @@
 -define(DB_PASSWORD, "password").
 -define(DB_DATABASE, "twoorl").
 -define(APP_PATH, "/home/yariv/apps/twoorl/trunk/twoorl").
+%-define(APP_PATH, "/Users/yariv/Documents/dev/twoorl/trunk/twoorl").
