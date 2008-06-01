@@ -132,4 +132,98 @@ user_link(Username) ->
     user_link(Username, Username).
 
 user_link(Username, Text) ->
-    [<<"<a href=\"/users/">>, Username, <<"\">">>, Text, <<"</a>">>].
+    erlyweb_html:a(["/users", Username], Text).
+
+log(Module, Line, Level, FormatFun) ->
+    Func = case Level of
+	       debug ->
+		   info_msg;
+	       info ->
+		   info_msg;
+	       normal ->
+		   info_msg;
+	       error ->
+		   error_msg;
+	       warn ->
+		   warning_msg
+	   end,
+    if Level =/= debug ->
+	    {Format, Params} = FormatFun(),
+	    error_logger:Func("~w:~b: "++ Format ++ "~n",
+			      [Module, Line | Params]);
+       true ->
+	    ok
+    end.
+
+replace_matches(Body, RegExp, ReplaceFun, MaxLen) ->
+    {match, Matches} = regexp:matches(Body, RegExp),
+    if Matches == [] ->
+	    {lists:sublist(Body, MaxLen), [], 0};
+       true ->
+	    replace_matches1(Body, Matches, ReplaceFun, MaxLen)
+    end.
+
+replace_matches1(Body, Matches, ReplaceFun, MaxLen) ->
+    {CurIdx1, Acc, RemChars3, MatchAcc, LenDiffAcc2} =
+	lists:foldl(
+	  fun({_Begin, _MatchLength},
+	      {CurIdx, _Acc, _RemChars, _MatchAcc, LenDiffAcc} = Res)
+	     when CurIdx + LenDiffAcc > MaxLen->
+		  %% ignore the match if we passed MaxLen chars
+		  Res;
+	     ({Begin, MatchLength},
+	      {CurIdx, Acc, RemChars, MatchAcc, LenDiffAcc}) ->
+		  PrefixLen = Begin - CurIdx,
+		  {Prefix, RemChars1} = lists:split(PrefixLen, RemChars),
+		  {Match, RemChars2} = lists:split(MatchLength, RemChars1),
+		  {NewStr1, NewLen} =
+		      case ReplaceFun(Match) of
+			  {_,_} = Res -> Res;
+			  Res -> {Res, MatchLength}
+		      end,
+		  
+		  LenDiff = NewLen - MatchLength,
+		  OverFlow =   (CurIdx + PrefixLen + NewLen) -
+		      (MaxLen - LenDiffAcc),
+		  
+		  %% if we detect an overflow, we discard the match
+		  {Acc1, LenDiffAcc1}
+		      = if OverFlow > 0 ->
+				
+				%% keep the remaining prefix
+				Rem = (MaxLen - LenDiffAcc) -
+					(CurIdx - 1),
+				Prefix1 =
+				    if Rem > PrefixLen ->
+					    Prefix;
+				       Rem < 1 ->
+					    [];
+				       true ->
+					    lists:sublist(Prefix, Rem)
+				    end,
+				{Prefix1,  LenDiffAcc - MatchLength};
+			   true ->
+				{[Prefix, NewStr1], LenDiffAcc + LenDiff}
+			end,
+		  {CurIdx + PrefixLen + MatchLength, [Acc1 | Acc], RemChars2,
+		   [Match | MatchAcc], LenDiffAcc1}
+	  end, {1, [], Body, [], 0}, Matches),
+    RemCharsLength = MaxLen - (CurIdx1 - 1) - LenDiffAcc2,
+    RemChars4 = if RemCharsLength > 0 ->
+			lists:sublist(RemChars3, RemCharsLength);
+		   true ->
+			[]
+		end,
+    {[lists:reverse(Acc), RemChars4], MatchAcc, LenDiffAcc2}.
+    
+
+get_tinyurl(Url) ->
+    TinyApi = "http://tinyurl.com/api-create.php?url=" ++ Url,
+    case http:request(TinyApi) of
+	{ok, {{_Protocol, 200, _}, _Headers, Body1}} ->
+	    {erlyweb_html:a([Body1], Body1), length(Body1)};
+	Res ->
+	    ?Error("tinyurl error: ~p", [Res]),
+	    Url
+    end.
+

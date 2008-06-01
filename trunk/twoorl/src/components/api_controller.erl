@@ -35,21 +35,22 @@ send(A) ->
 				[] ->
 				    {error, empty_msg};
 				_ ->
-				    {ok, lists:sublist(Val, 140)}
+				    ok
 			    end
 		    end),
 	      case Errs of
 		  [] ->
-		      Body1 = twoorl_util:htmlize(Body),
-		      {Body2, Names} = add_links(Body1),
+		      {Body1, Names} = process_body(Body),
 		      Msg = msg:new_with([{usr_username, Usr:username()},
 					  {usr_id, Usr:id()},
-					  {body, Body2},
+					  {body, Body1},
 					  {body_raw, Body}]),
 		      Msg1 = Msg:save(),
 
+		      Names1 = [tl(Name) || Name <- Names],
+
 		      Recipients = 
-			  usr:find({username, in, lists:usort(Names)}),
+			  usr:find({username, in, lists:usort(Names1)}),
 		      
 		      Replies =
 			  [reply:new_with(
@@ -135,29 +136,34 @@ follow(A) ->
       end).
 
 	      
-add_links(Body) ->
+process_body(Body) ->
+    Body1 = twoorl_util:htmlize(Body),
+    Body2 = add_tinyurl_links(Body1),
+    add_reply_links(Body2).
+
+add_reply_links(Body) ->
     %% regexp:parse("@[A-Za-z0-9_]+")
     Re = {concat,64,
             {pclosure,{char_class,[95,{48,57},{97,122},{65,90}]}}},
-    {match, Matches} = regexp:matches(Body, Re),
-    {_, Acc, Rem3, Names} =
-	lists:foldl(
-	  fun({Begin, Length}, {CurIdx, Acc, Rem, NamesAcc}) ->
-		  PrefixLen = Begin - CurIdx,
-		  {Prefix, Rem1} = lists:split(PrefixLen, Rem),
-		  {[_ | Name], Rem2} = lists:split(Length, Rem1),
-		  Anchor = twoorl_util:user_link(Name, [$@, Name]),
-		  Acc1 = [[Prefix, Anchor] | Acc],
-		  {CurIdx + PrefixLen +  Length, Acc1, Rem2, [Name | NamesAcc]}
-	  end, {1, [], Body, []}, Matches),
-    {lists:reverse(Acc) ++ Rem3, Names}.
+    {Body1, Names, _LenDiff} = 
+	twoorl_util:replace_matches(
+	  Body, Re, fun([_ | Name] = Val) ->
+			    twoorl_util:user_link(Name, Val)
+		    end, ?MAX_TWOORL_LEN),
+    {Body1, Names}.
+	      
+add_tinyurl_links(Body) ->
+    %% regexp:parse("http://[^\s]+")
+    Re = {concat,
+	  {concat,
+	   {concat,
+	    {concat,{concat,{concat,{concat,104,116},116},112},58},
+	    47},
+	   47},
+	  {pclosure,{comp_class," "}}},
 
-	      
-	      
-	      
-	      
-	      
-    
-    
-    
+    {Body2, _Links, _LenDiff} =
+	twoorl_util:replace_matches(
+	  Body, Re, fun twoorl_util:get_tinyurl/1, ?MAX_TWOORL_LEN),
+    Body2.
 
