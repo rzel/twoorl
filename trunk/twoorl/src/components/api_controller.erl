@@ -136,8 +136,9 @@ follow(A) ->
 
 	      
 add_links(Body) ->
-    %% regexp:parse("@[^\s]+")
-    Re = {concat,64,{pclosure,{comp_class," "}}},
+    %% regexp:parse("@[A-Za-z0-9_\-]+")
+    Re = {concat,64,
+            {pclosure,{char_class,[45,95,{48,57},{97,122},{65,90}]}}},
     {match, Matches} = regexp:matches(Body, Re),
     {_, Acc, Rem3, Names} =
 	lists:foldl(
