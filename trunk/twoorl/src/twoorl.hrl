@@ -8,6 +8,7 @@
 -define(MAX_FOLLOWING_BOX_SIZE, 20).
 -define(PAGING_WINDOW, 3).
 -define(MAX_TWOORL_LEN, 140).
+-define(MAX_MSG_SIZE, 10000).
 
 
 -import(twoorl_util, [log/5]).

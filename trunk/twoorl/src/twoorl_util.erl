@@ -132,7 +132,12 @@ user_link(Username) ->
     user_link(Username, Username).
 
 user_link(Username, Text) ->
-    erlyweb_html:a(["/users", Username], Text).
+    user_link(Username, Text, iolist).
+
+user_link(Username, Text, iolist) ->
+    erlyweb_html:a(["/users", Username], Text);
+user_link(Username, Text, list) ->
+    ["<a href=\"/users", Username, "\">", Text, "</a>"].
 
 log(Module, Line, Level, FormatFun) ->
     Func = case Level of
@@ -221,7 +226,7 @@ get_tinyurl(Url) ->
     TinyApi = "http://tinyurl.com/api-create.php?url=" ++ Url,
     case http:request(TinyApi) of
 	{ok, {{_Protocol, 200, _}, _Headers, Body1}} ->
-	    {erlyweb_html:a([Body1], Body1), length(Body1)};
+	    {["<a href=\"", Body1, "\">", Body1, "</a>"], length(Body1)};
 	Res ->
 	    ?Error("tinyurl error: ~p", [Res]),
 	    Url
