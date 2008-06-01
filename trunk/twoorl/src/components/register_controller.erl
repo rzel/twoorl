@@ -28,7 +28,7 @@ index(A) ->
 	    Params = yaws_api:parse_post(A),
 	    {[Username, Email, Password, Password2], Errs} =
 		erlyweb_forms:validate(
-		  A, ["username", "email", "password", "password2"],
+		  Params, ["username", "email", "password", "password2"],
 		  fun validate/2),
 	    Errs1 = 
 		if Password == Password2 ->
