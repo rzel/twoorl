@@ -152,7 +152,7 @@ log(Module, Line, Level, FormatFun) ->
 	       warn ->
 		   warning_msg
 	   end,
-    if true -> %Level =/= debug ->
+    if Level =/= debug ->
 	    {Format, Params} = FormatFun(),
 	    error_logger:Func("~w:~b: "++ Format ++ "~n",
 			      [Module, Line | Params]);
