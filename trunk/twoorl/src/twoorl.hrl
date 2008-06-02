@@ -10,6 +10,11 @@
 -define(MAX_TWOORL_LEN, 140).
 -define(MAX_MSG_SIZE, 10000).
 
+-define(TWITTER_NOT_SENT, 0).
+-define(TWITTER_SENT_PENDING, 1).
+-define(TWITTER_SENT_OK, 2).
+-define(TWITTER_SENT_ERR, 3).
+
 
 -import(twoorl_util, [log/5]).
 -define(Debug(Msg, Params),
