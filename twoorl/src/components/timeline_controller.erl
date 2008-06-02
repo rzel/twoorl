@@ -94,4 +94,4 @@ show_msg(_A, Msg, Opts) ->
     
     {data, {integer_to_list(Msg:id()),
 	    Username,
-	    UsrLink, msg:body(Msg), CreatedOn, IsBig}}.
+	    UsrLink, Msg:body(), CreatedOn, IsBig}}.

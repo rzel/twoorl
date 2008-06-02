@@ -152,7 +152,7 @@ log(Module, Line, Level, FormatFun) ->
 	       warn ->
 		   warning_msg
 	   end,
-    if Level =/= debug ->
+    if true -> %Level =/= debug ->
 	    {Format, Params} = FormatFun(),
 	    error_logger:Func("~w:~b: "++ Format ++ "~n",
 			      [Module, Line | Params]);
@@ -188,7 +188,7 @@ replace_matches1(Body, Matches, ReplaceFun, MaxLen) ->
 		      end,
 		  
 		  LenDiff = NewLen - MatchLength,
-		  OverFlow =   (CurIdx + PrefixLen + NewLen) -
+		  OverFlow = (CurIdx + PrefixLen + NewLen) -
 		      (MaxLen - LenDiffAcc),
 		  
 		  %% if we detect an overflow, we discard the match
@@ -232,3 +232,13 @@ get_tinyurl(Url) ->
 	    Url
     end.
 
+
+get_session_key(A) ->
+    yaws_arg:get_opaque_val(A, key).
+
+update_session(A, Usr) ->
+    update_session_by_key(twoorl_util:get_session_key(A), Usr).
+
+update_session_by_key(Key, Usr) ->
+    mnesia:dirty_write(#session{key=Key,
+				value=Usr}).

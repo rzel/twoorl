@@ -1,6 +1,6 @@
 <%@ index({Username, Email, Errs}) %>
 <div class="t2">Register</div>
-<% twoorl_errs:show(Errs) %>
+<% twoorl_messages:show_errs(Errs) %>
 <form action="/register" method="post">
   <div>username</div>
   <div><input name="username" id="input1" value="<% Username %>"/></div>

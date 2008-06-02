@@ -43,30 +43,42 @@ send(A) ->
 		  [] ->
 		      Body1 = twoorl_util:htmlize(Body),
 		      Body2 = add_tinyurl_links(Body1),
-		      {Body3, Names} = add_reply_links(Body2),
+		      {Body3, RecipientNames} = add_reply_links(Body2),
+
+		      TwitterEnabled = Usr:twitter_enabled() == 1,
+		      TwitterStatus = 
+			  if TwitterEnabled ->
+				  ?TWITTER_SENT_PENDING;
+			     true ->
+				  ?TWITTER_NOT_SENT
+			  end,
 		      Msg = msg:new_with([{usr_username, Usr:username()},
 					  {usr_id, Usr:id()},
 					  {body, lists:flatten(Body3)},
-					  {body_raw, Body}]),
+					  {body_raw, Body},
+					  {twitter_status, TwitterStatus}]),
 		      Msg1 = Msg:save(),
 
-		      Names1 = [tl(Name) || Name <- Names],
+		      if TwitterEnabled andalso RecipientNames == [] ->
+			      %% yey concurrency
+			      spawn(
+				fun() ->
+					send_tweet(Usr, Msg1)
+				end);
+			 true ->
+			      ok
+		      end,
 
-		      Recipients = 
-			  usr:find({username, in, lists:usort(Names1)}),
-		      
-		      Replies =
-			  [reply:new_with(
-			     [{usr_id, Recipient:id()},
-			      {msg_id, Msg1:id()}]) || Recipient <-
-							  Recipients],
-		      reply:insert(Replies),
+		      %% yey concurrency
+		      spawn(
+			fun() ->
+				save_replies(Msg1:id(), RecipientNames)
+			end),
 		      
 		      case proplists:get_value("get_html", Params) of
 			  "true" ->
-			      %% to get the timestamp (inefficient,
-			      %% but who cares :) )
-			      Msg2 = msg:find_id(Msg1:id()),
+			      Msg2 = msg:created_on(
+				       Msg1, calendar:local_time()),
 			      {ewc, timeline, show_msg, [A, Msg2]};
 			  _ ->
 			      {data, "ok"}
@@ -77,6 +89,18 @@ send(A) ->
 		      exit(Errs)
 	      end
       end).
+
+save_replies(MsgId, RecipientNames) ->
+    RecipientNames1 = [tl(Name) || Name <- RecipientNames],
+    Recipients = 
+	usr:find({username, in, lists:usort(RecipientNames1)}),
+    
+    Replies =
+	[reply:new_with(
+	   [{usr_id, Recipient:id()},
+	    {msg_id, MsgId}]) || Recipient <-
+					 Recipients],
+    reply:insert(Replies).
 
 follow(A) ->
     twoorl_util:auth(
@@ -143,12 +167,12 @@ add_reply_links(Body) ->
     %% regexp:parse("@[A-Za-z0-9_]+")
     Re = {concat,64,
             {pclosure,{char_class,[95,{48,57},{97,122},{65,90}]}}},
-    {Body1, Names, _LenDiff} = 
+    {Body1, RecipientNames, _LenDiff} = 
 	twoorl_util:replace_matches(
 	  Body, Re, fun([_ | Name] = Val) ->
 			    twoorl_util:user_link(Name, Val, list)
 		    end, ?MAX_TWOORL_LEN),
-    {Body1, Names}.
+    {Body1, RecipientNames}.
 	      
 add_tinyurl_links(Body) ->
     %% regexp:parse("http://[^\s]+")
@@ -165,3 +189,24 @@ add_tinyurl_links(Body) ->
 	  Body, Re, fun twoorl_util:get_tinyurl/1, ?MAX_TWOORL_LEN),
     Body2.
 
+
+
+send_tweet(Usr, Msg) ->
+    Username = Usr:twitter_username(),
+    Password = Usr:twitter_password(),
+    
+    Res = twitter:update(Username, Password, Msg:body_raw()),
+
+    UpdateFun = fun(Status) ->
+			msg:update([{twitter_status, Status}],
+				   {id,'=',Msg:id()})
+		end,
+    case Res of
+	{ok, {{_Protocol, 200, _},_Headers, _Body}} ->
+	    UpdateFun(?TWITTER_SENT_OK);
+	_ ->
+	    ?Warn("error sending tweet ~p ~p", [Msg:id(), Res]),
+	    UpdateFun(?TWITTER_SENT_ERR)
+    end.
+
+    
