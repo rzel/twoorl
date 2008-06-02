@@ -137,7 +137,7 @@ user_link(Username, Text) ->
 user_link(Username, Text, iolist) ->
     erlyweb_html:a(["/users", Username], Text);
 user_link(Username, Text, list) ->
-    ["<a href=\"/users", Username, "\">", Text, "</a>"].
+    ["<a href=\"/users/", Username, "\">", Text, "</a>"].
 
 log(Module, Line, Level, FormatFun) ->
     Func = case Level of
