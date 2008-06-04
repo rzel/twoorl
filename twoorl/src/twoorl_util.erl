@@ -242,3 +242,23 @@ update_session(A, Usr) ->
 update_session_by_key(Key, Usr) ->
     mnesia:dirty_write(#session{key=Key,
 				value=Usr}).
+
+
+gravatar_icon(GravatarId) ->
+    [<<"<img src=\"http://www.gravatar.com/avatar.php?size=32&gravatar_id=">>,
+     GravatarId, <<"\"/>">>].
+
+gravatar_id(Email) ->
+    digest2str(erlang:md5(Email)).
+
+digest2str(Digest) ->
+    [[nibble2hex(X bsr 4), nibble2hex(X band 15)] ||
+	X <- binary_to_list(Digest)].
+
+-define(IN(X,Min,Max), X >= Min, X =< Max).
+
+
+nibble2hex(X) when ?IN(X, 0, 9)   -> X + $0;
+nibble2hex(X) when ?IN(X, 10, 15) -> X - 10 + $a.
+
+

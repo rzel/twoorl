@@ -25,7 +25,7 @@
 private() ->
     true.
 
-index(A) ->
+index(_A) ->
     {data, undefined}.
 
 show(A) ->
@@ -34,24 +34,24 @@ show(A) ->
 show(A, Usr) when not is_list(Usr), Usr =/= undefined ->
     show(A, [Usr:id()]);
 
-show(A, UsrIds) ->
-    show(A, UsrIds, []).
+show(A, UserIds) ->
+    show(A, UserIds, []).
 
-show(A, UsrIds, Opts) ->
+show(A, UserIds, Opts) ->
     OrderBy = {order_by, {created_on, desc}},
     
     %% this function is a prime optimization candidate
     Total = 
-	if UsrIds =/= undefined ->
-		msg:count('*', {usr_id, in, UsrIds});
+	if UserIds =/= undefined ->
+		msg:count('*', {usr_id, in, UserIds});
 	   true ->
 		msg:count('*')
 	end,
     {replace, 
      {ewc, paging,
       [A, fun(Limit) ->
-		  if UsrIds =/= undefined ->
-			  msg:find({usr_id,in,UsrIds}, [OrderBy, Limit]);
+		  if UserIds =/= undefined ->
+			  msg:find({usr_id,in,UserIds}, [OrderBy, Limit]);
 		     true ->
 			  msg:find_with([OrderBy, Limit])
 		  end
@@ -83,11 +83,25 @@ show_msg(A, Msg) ->
     show_msg(A, Msg, []).
 
 show_msg(_A, Msg, Opts) ->
-    Username = msg:usr_username(Msg),
+    Username = Msg:usr_username(),
     UsrLink = case proplists:get_value(hide_user, Opts) of
 		  true ->
 		      undefined;
-		  _ -> twoorl_util:user_link(Username)
+		  _ ->
+		      GravatarId =
+			  case Msg:usr_gravatar_enabled() of
+			      1 ->
+				  case Msg:usr_gravatar_id() of
+				      undefined ->
+					  ?DEFAULT_GRAVATAR_ID;
+				      Other ->
+					  Other
+				  end;
+			      0 ->
+				  ?DEFAULT_GRAVATAR_ID
+			  end,
+		      twoorl_util:user_link(
+			Username, twoorl_util:gravatar_icon(GravatarId))
 	      end,
     CreatedOn = msg:get_time_since(Msg),
     IsBig = proplists:get_value(is_big, Opts) == true,

@@ -46,7 +46,7 @@ form input {
   font-size: 1.5em;
 }
 
-.t2 {
+.t2, .section {
   border-bottom: #999 solid 1px;
   padding-bottom: 20px;
 }
