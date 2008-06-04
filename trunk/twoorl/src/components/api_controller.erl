@@ -56,6 +56,11 @@ send(A) ->
 					  {usr_id, Usr:id()},
 					  {body, lists:flatten(Body3)},
 					  {body_raw, Body},
+					  {usr_gravatar_id,
+					   twoorl_util:gravatar_id(
+					     Usr:email())},
+					  {usr_gravatar_enabled,
+					   Usr:gravatar_enabled()},
 					  {twitter_status, TwitterStatus}]),
 		      Msg1 = Msg:save(),
 
