@@ -84,28 +84,31 @@ show_msg(A, Msg) ->
 
 show_msg(_A, Msg, Opts) ->
     Username = Msg:usr_username(),
-    UsrLink = case proplists:get_value(hide_user, Opts) of
-		  true ->
-		      undefined;
-		  _ ->
-		      GravatarId =
-			  case Msg:usr_gravatar_enabled() of
-			      1 ->
-				  case Msg:usr_gravatar_id() of
-				      undefined ->
+    {Gravatar, Userlink} =
+	case proplists:get_value(hide_user, Opts) of
+	    true ->
+		{[], []};
+	    _ ->
+		GravatarId =
+		    case Msg:usr_gravatar_enabled() of
+			1 ->
+			    case Msg:usr_gravatar_id() of
+				undefined ->
 					  ?DEFAULT_GRAVATAR_ID;
-				      Other ->
-					  Other
-				  end;
-			      0 ->
-				  ?DEFAULT_GRAVATAR_ID
-			  end,
-		      twoorl_util:user_link(
-			Username, twoorl_util:gravatar_icon(GravatarId))
-	      end,
+				Other ->
+				    Other
+			    end;
+			0 ->
+			    ?DEFAULT_GRAVATAR_ID
+		    end,
+		{twoorl_util:user_link(
+		   Username, twoorl_util:gravatar_icon(GravatarId)),
+		 twoorl_util:user_link(Username)}
+	end,
     CreatedOn = msg:get_time_since(Msg),
     IsBig = proplists:get_value(is_big, Opts) == true,
     
     {data, {integer_to_list(Msg:id()),
 	    Username,
-	    UsrLink, Msg:body(), CreatedOn, IsBig}}.
+	    Gravatar, 
+	    Userlink, Msg:body(), CreatedOn, IsBig}}.
