@@ -1,3 +1,0 @@
-<%@ send(Data) %><% Data %>
-
-<%@ follow(Data) %><% Data %>

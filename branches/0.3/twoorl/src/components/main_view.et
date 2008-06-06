@@ -1,3 +1,0 @@
-<%@ index(Data) %>
-<div class="t2">public timeline</div>
-<% Data %>

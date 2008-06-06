@@ -1,1 +1,0 @@
-alter table msg modify column body_raw text;
