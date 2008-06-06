@@ -32,15 +32,17 @@ start() ->
     compile().
 
 compile() ->
-    erlyweb:compile(?APP_PATH, [{erlydb_driver, mysql}]).
+    compile([]).
 
 compile_dev() ->
-    erlyweb:compile(?APP_PATH, [{erlydb_driver, mysql}, {auto_compile, true}]).
+    compile([{auto_compile, true}]).
 
 compile_update() ->
-    erlyweb:compile(?APP_PATH, [{erlydb_driver, mysql},
-			   {last_compile_time, auto}]).
+    compile([{last_compile_time, auto}]).
 
+compile(Opts) ->
+    erlyweb:compile(?APP_PATH,
+		    [{erlydb_driver, mysql}, {erlydb_timeout, 20000} | Opts]).
 
 init_mnesia() ->
     ?L("creating schema"),
@@ -97,5 +99,5 @@ init_mysql() ->
       fun(_) ->
 	      mysql:connect(erlydb_mysql, ?DB_HOSTNAME, undefined,
 			    ?DB_USERNAME, ?DB_PASSWORD, ?DB_DATABASE, true)
-      end, lists:seq(1, 20)).
+      end, lists:seq(1, ?DB_POOL_SIZE)).
 
