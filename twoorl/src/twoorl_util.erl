@@ -245,7 +245,7 @@ update_session_by_key(Key, Usr) ->
 
 
 gravatar_icon(GravatarId) ->
-    [<<"<img src=\"http://www.gravatar.com/avatar.php?size=32&gravatar_id=">>,
+    [<<"<img border=\"0\" src=\"http://www.gravatar.com/avatar.php?size=32&gravatar_id=">>,
      GravatarId, <<"\"/>">>].
 
 gravatar_id(Email) ->
