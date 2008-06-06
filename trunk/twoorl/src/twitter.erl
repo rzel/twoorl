@@ -2,6 +2,12 @@
 -compile(export_all).
 -include("twoorl.hrl").
 
+post(Url, Username, Password, Params) when is_binary(Username) ->
+    post(Url, binary_to_list(Username), Password, Params);
+
+post(Url, Username, Password, Params) when is_binary(Password) ->
+    post(Url, Username, binary_to_list(Password), Params);
+
 post(Url, Username, Password, Params) ->
     Encoded = binary_to_list(
 		base64:encode(Username ++ ":" ++ Password)),
